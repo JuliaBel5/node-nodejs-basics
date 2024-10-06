@@ -1,29 +1,23 @@
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { access, readdir } from "fs/promises";
-import { constants } from "fs";
+import { getDirname } from "../utils/getDirname.js";
+import { doesFileExist } from "../utils/doesFileExist.js";
+import { readdir } from "fs/promises";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = getDirname(import.meta.url);
 
 const list = async () => {
   const errorMessage = "FS operation failed";
   const pathToFolder = path.join(__dirname, "files");
+  const folderExists = await doesFileExist(pathToFolder);
+  if (!folderExists) {
+    throw new Error(errorMessage);
+  }
 
   try {
-    await access(pathToFolder, constants.F_OK);
-    try {
-      const filesNames = await readdir(pathToFolder);
-      console.log(filesNames);
-    } catch (error) {
-      throw new Error(error.message);
-    }
+    const filesNames = await readdir(pathToFolder);
+    console.log(filesNames);
   } catch (error) {
-    if (error.code === "ENOENT") {
-      throw new Error(errorMessage);
-    } else {
-      throw new Error(error.message);
-    }
+    throw new Error(error.message);
   }
 };
 

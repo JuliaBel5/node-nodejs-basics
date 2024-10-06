@@ -1,24 +1,22 @@
-import { access, unlink } from "fs/promises";
+import { unlink } from "fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { constants } from "fs";
+import { getDirname } from "../utils/getDirname.js";
+import { doesFileExist } from "../utils/doesFileExist.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = getDirname(import.meta.url);
 
 const remove = async () => {
   const errorMessage = "FS operation failed";
   const pathToFile = path.join(__dirname, "files", "fileToRemove.txt");
+  const fileExists = await doesFileExist(pathToFile);
+  if (!fileExists) {
+    throw new Error(errorMessage);
+  }
+
   try {
-    await access(pathToFile, constants.F_OK);
     await unlink(pathToFile);
-    console.log("File deleted successfully!");
   } catch (error) {
-    if (error.code === "ENOENT") {
-      throw new Error(errorMessage);
-    } else {
-      throw new Error(error.message);
-    }
+    throw new Error(error.message);
   }
 };
 

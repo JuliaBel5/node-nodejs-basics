@@ -1,10 +1,9 @@
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { access, mkdir, readdir, copyFile, stat } from "node:fs/promises";
-import { constants } from "node:fs";
+import { getDirname } from "../utils/getDirname.js";
+import { doesFileExist } from "../utils/doesFileExist.js";
+import { mkdir, readdir, copyFile, stat } from "node:fs/promises";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = getDirname(import.meta.url);
 const copyFolderContents = async (source, destination) => {
   const items = await readdir(source);
 
@@ -26,19 +25,18 @@ const copy = async () => {
   const errorMessage = "FS operation failed";
   const pathToFolder = path.join(__dirname, "files");
   const pathToNewFolder = path.join(__dirname, "files_copy");
-  try {
-    await access(pathToFolder, constants.F_OK);
-    try {
-      await access(pathToNewFolder, constants.F_OK);
 
-      throw new Error(errorMessage);
-    } catch (err) {
-      if (err.code === "ENOENT") {
-        await mkdir(pathToNewFolder);
-      } else {
-        throw new Error(err.message);
-      }
-    }
+  const sourceExists = await doesFileExist(pathToFolder);
+  if (!sourceExists) {
+    throw new Error(errorMessage);
+  }
+
+  const destinationExists = await doesFileExist(pathToNewFolder);
+  if (destinationExists) {
+    throw new Error(errorMessage);
+  }
+  try {
+    await mkdir(pathToNewFolder);
     await copyFolderContents(pathToFolder, pathToNewFolder);
     console.log("Folder copied successfully!");
   } catch (err) {
