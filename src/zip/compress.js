@@ -23,7 +23,6 @@ export const compress = async () => {
     const writeStream = fs.createWriteStream(outputFilePath);
 
     await pipeline(readStream, gzip, writeStream);
-    console.log("File successfully compressed");
   } catch (err) {
     console.error(`Error during compression: ${err.message}`);
   }

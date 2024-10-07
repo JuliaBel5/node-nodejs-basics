@@ -38,7 +38,6 @@ const copy = async () => {
   try {
     await mkdir(pathToNewFolder);
     await copyFolderContents(pathToFolder, pathToNewFolder);
-    console.log("Folder copied successfully!");
   } catch (err) {
     throw new Error(err.message);
   }

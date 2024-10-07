@@ -24,7 +24,6 @@ const decompress = async () => {
 
   try {
     await pipeline(readStream, gunzip, writeStream);
-    console.log("File successfully decompressed");
   } catch (err) {
     console.error(`Error during decompression: ${err.message}`);
   }
